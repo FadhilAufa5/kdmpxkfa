@@ -1,4 +1,5 @@
-import { Facebook, Instagram, Mail, MapPin, Phone, Twitter } from 'lucide-react';
+import { Facebook, Instagram, Mail, MapPin, Phone, Twitter, LayoutGrid, ShoppingCart, History } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
 export default function Footer() {
     return (
@@ -7,32 +8,42 @@ export default function Footer() {
                 {/* Brand */}
                 <div>
                     <img src="/Logo KFA member of BioFarma 300x300-01.png" alt="KFA Logo" className="mb-3 h-20 w-auto" />
-                    <p className="mt-3 text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat, voluptates.</p>
+                    <p className="mt-3 text-sm">Kimia Farma Apotek - Member of BioFarma.</p>
                 </div>
 
                 {/* Navigation */}
                 <div>
-                    <h3 className="mb-4 text-lg font-semibold text-white">Navigasi</h3>
+                    <h3 className="mb-4 text-lg font-semibold text-white">KFA</h3>
                     <ul className="space-y-2">
                         <li>
-                            <a href="/shop" className="hover:text-white">
-                                Belanja
-                            </a>
+                            <Link href={route('dashboard', [], false)} className="hover:text-white flex items-center gap-2">
+                               Beranda
+                            </Link>
                         </li>
                         <li>
-                            <a href="/about" className="hover:text-white">
+                            <Link href={route('orders.products', [], false)} className="hover:text-white flex items-center gap-2">
+                                Produk
+                            </Link>
+                        </li>
+                        <li>
+                            {/* <Link href={route('history.index', [], false)} className="hover:text-white flex items-center gap-2">
+                                <History size={16} /> Riwayat Pesanan
+                            </Link> */}
+                        </li>
+                        <li>
+                            {/* <Link href={route('about', [], false)} className="hover:text-white">
                                 Tentang Kami
-                            </a>
+                            </Link> */}
                         </li>
                         <li>
-                            <a href="/contact" className="hover:text-white">
+                            {/* <Link href={route('contact', [], false)} className="hover:text-white">
                                 Kontak
-                            </a>
+                            </Link> */}
                         </li>
                         <li>
-                            <a href="/faq" className="hover:text-white">
+                            <Link href={route('faq', [], false)} className="hover:text-white">
                                 FAQ
-                            </a>
+                            </Link>
                         </li>
                     </ul>
                 </div>

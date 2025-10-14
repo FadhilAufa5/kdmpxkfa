@@ -133,8 +133,8 @@ const useAnimationLoop = (trackRef, targetVelocity, seqWidth, isHovered, pauseOn
 
 export const LogoLoop = memo(
   ({
-    logos = [], // ✅ default biar gak undefined
-    speed = 120,
+    logos = [], 
+    speed = 50,
     direction = 'left',
     width = '100%',
     logoHeight = 28,

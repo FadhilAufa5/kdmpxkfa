@@ -172,8 +172,13 @@ export default function Dashboard({ products, top_products }: { products?: Produ
             ))}
             </CarouselContent>
 
-            <CarouselPrevious className="hidden border-0 bg-white shadow-md sm:flex dark:bg-slate-700/80" />
-            <CarouselNext className="hidden border-0 bg-white shadow-md sm:flex dark:bg-slate-700/80" />
+            <CarouselPrevious
+            className="hidden absolute left-1 top-1/2 -translate-y-1/2 z-10 sm:flex border-0 bg-white shadow-md dark:bg-slate-700/80"
+            />
+            <CarouselNext
+            className="hidden absolute right-1 top-1/2 -translate-y-1/2 z-10 sm:flex border-0 bg-white shadow-md dark:bg-slate-700/80"
+            />
+
         </Carousel>
         </motion.div>
 

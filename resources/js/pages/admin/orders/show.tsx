@@ -9,8 +9,9 @@ import { currency } from '@/lib/utils';
 import { Order, OrderItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { CheckCircle, Clock, MapPin, Package, Truck, User, XCircle } from 'lucide-react';
+import { CheckCircle, Clock, MapPin, Package, Truck, User, XCircle, Download, Eye } from 'lucide-react';
 import { route } from 'ziggy-js';
+
 const breadcrumbs = (transactionNumber: string) => [
     { title: 'Dashboard', href: route('admin.dashboard') },
     { title: 'Orders', href: route('admin.orders.index') },
@@ -39,9 +40,7 @@ const getStatusIcon = (status: string) => {
     }
 };
 
-const formatStatus = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1);
-};
+const formatStatus = (status: string) => status.charAt(0).toUpperCase() + status.slice(1);
 
 interface OrderShowProps {
     order: Order;
@@ -61,11 +60,7 @@ export default function OrderShow({ order }: OrderShowProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        patch(route('admin.orders.update', order.id), {
-            onSuccess: () => {
-                // window.location.reload();
-            },
-        });
+        patch(route('admin.orders.update', order.id));
     };
 
     const updateQtyDelivered = (index: number, value: string) => {
@@ -74,10 +69,7 @@ export default function OrderShow({ order }: OrderShowProps) {
         const validatedQty = Math.min(qtyValue, maxQty);
 
         const updatedItems = [...data.order_items];
-        updatedItems[index] = {
-            ...updatedItems[index],
-            qty_delivered: validatedQty,
-        };
+        updatedItems[index] = { ...updatedItems[index], qty_delivered: validatedQty };
         setData('order_items', updatedItems);
     };
 
@@ -101,21 +93,41 @@ export default function OrderShow({ order }: OrderShowProps) {
             <Head title={`Order #${order.id}`} />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                {/* Header & Status */}
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Order Details</h1>
-                        <p className="text-muted-foreground">View detailed information about order #{order.transaction_number}</p>
+                        <p className="text-muted-foreground">
+                            View detailed information about order #{order.transaction_number}
+                        </p>
                     </div>
-                    <Badge
-                        className={`flex items-center gap-1 text-sm ${
-                            statusStyle[order.status] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                        }`}
-                    >
-                        {getStatusIcon(order.status)}
-                        {formatStatus(order.status)}
-                    </Badge>
+
+                    <div className="flex items-center gap-2">
+                        <Badge
+                            className={`flex items-center gap-1 text-sm ${
+                                statusStyle[order.status] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                            }`}
+                        >
+                            {getStatusIcon(order.status)}
+                            {formatStatus(order.status)}
+                        </Badge>
+
+                        {order.invoice && (
+                            <Button asChild size="sm" variant="outline">
+                                <a
+                                    href={route('admin.invoices.show', order.invoice.id)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1"
+                                >
+                                    <Eye className="h-4 w-4" /> Lihat Faktur
+                                </a>
+                            </Button>
+                        )}
+                    </div>
                 </div>
 
+                {/* Customer & Order Info */}
                 <div className="grid gap-4 lg:grid-cols-3">
                     {/* Customer Information */}
                     <Card className="lg:col-span-1">
@@ -194,11 +206,7 @@ export default function OrderShow({ order }: OrderShowProps) {
                             <div>
                                 <h4 className="text-sm font-medium text-muted-foreground">City/State/ZIP</h4>
                                 <p className="text-sm font-medium">
-                                    {[
-                                        order.shipping_city || order.billing_city,
-                                        order.shipping_state || order.billing_state,
-                                        order.shipping_zip || order.billing_zip,
-                                    ]
+                                    {[order.shipping_city || order.billing_city, order.shipping_state || order.billing_state, order.shipping_zip || order.billing_zip]
                                         .filter(Boolean)
                                         .join(', ') || 'N/A'}
                                 </p>
@@ -276,7 +284,7 @@ export default function OrderShow({ order }: OrderShowProps) {
                                                     {currency(
                                                         item.unit_price *
                                                             item.content *
-                                                            (isDeliverable ? data.order_items[index]?.qty_delivered || 0 : item.qty_delivered || 0),
+                                                            (isDeliverable ? data.order_items[index]?.qty_delivered || 0 : item.qty_delivered || 0)
                                                     )}
                                                 </TableCell>
                                             </TableRow>
@@ -288,7 +296,6 @@ export default function OrderShow({ order }: OrderShowProps) {
                     </Card>
 
                     <div className="mt-4 flex flex-col items-end gap-4">
-                        {/* Left Side: Summary Table */}
                         <div className="w-full max-w-sm">
                             <Table>
                                 <TableBody>
@@ -308,8 +315,7 @@ export default function OrderShow({ order }: OrderShowProps) {
                             </Table>
                         </div>
 
-                        {/* Right Side: Action Buttons */}
-                   <div className="flex shrink-0 items-center gap-4 py-4">
+                        <div className="flex shrink-0 items-center gap-4 py-4">
                             <Button variant="outline" asChild>
                                 <Link href={route('admin.orders.index')}>Back to Orders</Link>
                             </Button>
@@ -319,17 +325,7 @@ export default function OrderShow({ order }: OrderShowProps) {
                                     {processing ? 'Updating...' : 'Mark as Shipped'}
                                 </Button>
                             )}
-
-                           
-                            {order.status === 'dalam-pengiriman' && order.invoice && (
-                                <Button asChild>
-                            <a href={route('admin.invoices.download', order.invoice.id)}>
-                                Download Faktur
-                            </a>
-                        </Button>
-                            )}
                         </div>
-
                     </div>
                 </form>
             </div>

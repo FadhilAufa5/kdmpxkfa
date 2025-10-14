@@ -6,7 +6,8 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SsoController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\InvoiceController; // ✅ tambah
+use App\Http\Controllers\Admin\InvoiceController; 
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\Auth\OnboardingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Ecommerce\CartController;
@@ -100,7 +101,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('{transaction_number}/details', [HistoryController::class, 'show'])->name('details');
         Route::post('{transaction_number}/updateStatus', [HistoryController::class, 'updateStatus'])->name('updateStatus');
     });
-
+    
+    Route::get('/faq', [FaqController::class, 'index'])->name('faq');
     /*
     |--------------------------------------------------------------------------
     | Admin Routes
@@ -145,7 +147,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
                 // ✅ Rute untuk Invoices
                 Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
-                Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+                // Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
             });
 
             // Rute untuk manajemen Roles

@@ -114,13 +114,13 @@ export default function HeroCarousel() {
                 onClick={prevSlide}
                 className="absolute left-4 top-1/2 z-30 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/40"
             >
-                <ChevronLeft size={32} />
+                <ChevronLeft size={20} />
             </button>
             <button
                 onClick={nextSlide}
                 className="absolute right-4 top-1/2 z-30 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/40"
             >
-                <ChevronRight size={32} />
+                <ChevronRight size={20} />
             </button>
         </div>
     );

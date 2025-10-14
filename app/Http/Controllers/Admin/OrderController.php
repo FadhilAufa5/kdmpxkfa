@@ -68,7 +68,7 @@ class OrderController extends Controller
     public function show(string $transaction_number)
     {
         $order = Order::where('transaction_number', $transaction_number)->firstOrFail();
-        $order->load(['user', 'user.apotek', 'orderItems.product.category']);
+        $order->load(['user', 'user.apotek', 'orderItems.product.category','invoice']);
         $user = Auth::user();
 
         // Check if user has permission to view this order
@@ -118,10 +118,10 @@ class OrderController extends Controller
         $order->update([
             'status' => OrderStatusEnum::DELIVERY->value,
             'shipped_at' => now(),
-            //Simpan subtotal_delivered, tax_delivered, dan total_delivered di table order
+            
             'subtotal_delivered' => $subtotal,
             'tax_delivered' => $subtotal * 0.11,
-            'total_delivered' => round($subtotal * 1.11), // $subtotal*1.11;
+            'total_delivered' => round($subtotal * 1.11), 
         ]);
 
     // ============================

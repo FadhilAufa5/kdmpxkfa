@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -11,39 +11,40 @@
 
         body {
             font-family: 'Courier New', monospace;
-            font-size: 12px;
-            margin: 30px;
+            font-size: 10px; 
+            margin: 25px;
+            color: #111;
         }
 
-        /* ===== HEADER ===== */
+      
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
         }
 
         .header p {
-            font-size: 12px;
+            font-size: 10px;
             line-height: 1.4;
         }
 
-        /* ===== SECTION TITLE ===== */
+      
         .section-title {
             font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 6px;
-            margin-top: 20px;
+            font-size: 11px;
+            margin-bottom: 5px;
+            margin-top: 15px;
         }
 
-        /* ===== TABLES ===== */
+       
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         table, th, td {
@@ -51,58 +52,60 @@
         }
 
         th, td {
-            padding: 6px 8px;
+            padding: 4px 6px;
             vertical-align: top;
         }
 
         th {
             background: #f2f2f2;
             text-align: left;
+            font-size: 10px;
         }
 
-        .text-right {
-            text-align: right;
+        td {
+            font-size: 9.5px;
         }
 
-        .text-center {
-            text-align: center;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
 
-        /* ===== INFO SECTION ===== */
-        .info-table td {
-            border: none;
-            padding: 3px 5px;
-        }
-
+     
         .info-section {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
-            gap: 40px;
-            margin-bottom: 20px;
+            align-items: flex-start;
+            gap: 20px; 
+            margin-bottom: 15px;
         }
 
         .column {
-            width: 48%;
+            width: 48%; 
         }
 
-        /* ===== TOTALS TABLE (Pojok Kanan) ===== */
+        .info-table {
+            border: none;
+        }
+
+        .info-table td {
+            border: none;
+            padding: 2px 4px;
+        }
+
+       
         .totals {
-            width: 45%; /* Lebar tabel total */
-            margin-left: auto; /* Mendorong tabel ke kanan */
-            margin-right: 0;
-            margin-top: 10px; /* Jarak dari tabel produk di atasnya */
+            width: 40%;
+            margin-left: auto;
             border-collapse: collapse;
             text-align: left;
+            font-size: 9.5px;
         }
 
         .totals td {
             border: none;
-            padding: 4px 8px;
+            padding: 3px 6px;
         }
 
         .totals .label {
-            text-align: left;
             font-weight: bold;
         }
 
@@ -110,28 +113,27 @@
             text-align: right;
         }
         
-        /* ===== TERBILANG ===== */
+       
         .terbilang-section {
-            margin-top: 20px;
-            font-size: 12px;
-            line-height: 1.5;
+            margin-top: 10px;
+            font-size: 9.5px;
+            line-height: 1.4;
         }
 
-
-        /* ===== SIGNATURES ===== */
-        .signature-container {
-            margin-top: 40px; /* Jarak dari elemen di atasnya */
+       
+        .signature-container {  
+            margin-top: 30px;
             display: flex;
             justify-content: space-between;
             text-align: center;
         }
 
         .signature {
-            width: 48%;
+            width: 45%;
         }
 
         .signature p {
-            margin-bottom: 60px; /* ruang untuk tanda tangan */
+            margin-bottom: 40px; 
         }
 
         .signature-name {
@@ -141,7 +143,7 @@
 
         .signature-role {
             font-style: italic;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         /* ===== UTILITY ===== */
@@ -161,40 +163,23 @@
     <h2>Invoice #{{ $invoice->invoice_number }}</h2>
     <p><strong>Tanggal Invoice:</strong> {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d/m/Y') }}</p>
 
+    <!-- 🔹 Kedua tabel berdampingan -->
     <div class="info-section">
         <div class="column">
             <div class="section-title">Informasi Pengirim</div>
             <table class="info-table">
-                <tr>
-                    <td><strong>Nama:</strong></td>
-                    <td>{{ $invoice->order->user->name }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Email:</strong></td>
-                    <td>{{ $invoice->order->user->email }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Apotek:</strong></td>
-                    <td>{{ $invoice->order->user->apotek->name ?? '-' }}</td>
-                </tr>
+                <tr><td><strong>Nama:</strong></td><td>{{ $invoice->order->user->name }}</td></tr>
+                <tr><td><strong>Email:</strong></td><td>{{ $invoice->order->user->email }}</td></tr>
+                <tr><td><strong>Apotek:</strong></td><td>{{ $invoice->order->user->apotek->name ?? '-' }}</td></tr>
             </table>
         </div>
 
         <div class="column">
             <div class="section-title">Informasi Order</div>
             <table class="info-table">
-                <tr>
-                    <td><strong>No. Transaksi:</strong></td>
-                    <td>{{ $invoice->order->transaction_number }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Tanggal Order:</strong></td>
-                    <td>{{ \Carbon\Carbon::parse($invoice->order->created_at)->format('d/m/Y H:i') }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Status:</strong></td>
-                    <td>{{ ucfirst($invoice->order->status) }}</td>
-                </tr>
+                <tr><td><strong>No. Transaksi:</strong></td><td>{{ $invoice->order->transaction_number }}</td></tr>
+                <tr><td><strong>Tanggal Order:</strong></td><td>{{ \Carbon\Carbon::parse($invoice->order->created_at)->format('d/m/Y H:i') }}</td></tr>
+                <tr><td><strong>Status:</strong></td><td>{{ ucfirst($invoice->order->status) }}</td></tr>
             </table>
         </div>
     </div>
@@ -255,33 +240,25 @@
     </div>
 
     <table class="totals">
-        <tr>
-            <td class="label">Subtotal:</td>
-            <td class="value">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
-        </tr>
-        <tr>
-            <td class="label">Pajak (11%):</td>
-            <td class="value">Rp {{ number_format($tax, 0, ',', '.') }}</td>
-        </tr>
-        <tr>
-            <td class="label">Total:</td>
-            <td class="value"><strong>Rp {{ number_format($total, 0, ',', '.') }}</strong></td>
-        </tr>
+        <tr><td class="label">Subtotal:</td><td class="value">Rp {{ number_format($subtotal, 0, ',', '.') }}</td></tr>
+        <tr><td class="label">Pajak (11%):</td><td class="value">Rp {{ number_format($tax, 0, ',', '.') }}</td></tr>
+        <tr><td class="label">Total:</td><td class="value"><strong>Rp {{ number_format($total, 0, ',', '.') }}</strong></td></tr>
     </table>
 
-    <div class="clear"></div>
-    
-    
-
-    <!-- Tanda tangan -->
     <div class="signature-container">
         <div class="signature">
             <p>Dibuat oleh,</p>
             <div class="signature-name">{{ $invoice->created_by ?? '____________________' }}</div>
             <div class="signature-role">Apoteker</div>
         </div>
-        
+    </div>
+    <div class="signature-container">
+        <div class="signature">
+            <p>Dibuat oleh,</p>
+            <div class="signature-name">{{ $invoice->created_by ?? '____________________' }}</div>
+            <div class="signature-role">Menyetujui</div>
+        </div>
     </div>
 
 </body>
-</html>
+</html> --}}
