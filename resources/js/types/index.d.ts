@@ -242,7 +242,6 @@ export interface Order {
 export interface OrderItem {
     id: number;
     product_name: string;
-    product_image: string;
     quantity: number;
     qty_delivered: number;
     unit_price: number;
@@ -250,6 +249,7 @@ export interface OrderItem {
     content: number;
     product: Product;
     order_unit: string;
+    image?: Record<string>;
 }
 
 // ✅ OrderPayload untuk request create order

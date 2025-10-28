@@ -17,6 +17,7 @@ use App\Http\Controllers\MappingController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\TransactionController;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -186,5 +187,9 @@ Route::bind('user', function ($value) {
 //    return Order::findOrFail($value);
 //});
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+Route::bind('product', function ($value) {
+    return Product::findOrFail($value);
+});
+
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
