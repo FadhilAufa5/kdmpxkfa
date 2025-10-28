@@ -3,6 +3,7 @@ import { Head, usePage } from "@inertiajs/react";
 import { currency } from "@/lib/utils";
 import { convertToTerbilang } from "@/lib/terbilang";
 import { Order, OrderItem } from "@/types";
+import { route } from "ziggy-js";
 
 
 export default function ShowInvoice() {
@@ -22,10 +23,13 @@ export default function ShowInvoice() {
 
           
         <button
-          onClick={() => window.history.back()}
+          onClick={() => {
+            const adminOrderUrl = route('admin.orders.show', { order: order.transaction_number });
+            window.location.href = adminOrderUrl;
+          }}
           className="mb-4 px-2 py-1 bg-gray-200 hover:bg-gray-300 text-[10px] rounded"
         >
-          ← Kembali
+          ← Kembali ke Order
         </button>
 
        

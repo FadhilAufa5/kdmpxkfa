@@ -86,8 +86,9 @@ export interface Permission {
     name: string;
 }
 
+// ✅ Relasi User diperluas tanpa ubah logic
 export interface User {
-    id: number;
+    id: number | string;
     name: string;
     username: string;
     email: string;
@@ -100,7 +101,41 @@ export interface User {
     apotek?: Apotek;
     phone?: string;
     status: string;
-    [key: string]: unknown; // This allows for additional properties...
+
+    // Relasi tambahan ke UserProfile
+    user_profile?: UserProfile; // dari Eloquent: userProfile()
+    user_profile_data?: UserProfile; // dari accessor: getUserProfileDataAttribute()
+
+    [key: string]: unknown; // fleksibilitas tambahan
+}
+
+// ✅ Tambahkan definisi UserProfile agar dikenali
+export interface UserProfile {
+    id: number | string;
+    user_id: number | string;
+    name: string;
+    tenant_id?: string;
+    source_app?: string;
+    province_code?: string;
+    city_code?: string;
+    district_code?: string;
+    village_code?: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
+    nik?: string;
+    pic_name?: string;
+    pic_phone?: string;
+    nib_number?: string;
+    bank_account?: Record<string, any>;
+    npwp?: string;
+    sk_number?: string;
+    nib_file?: string;
+    ktp_file?: string;
+    npwp_file?: string;
+    sia_number?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface PackageItem {
@@ -165,39 +200,30 @@ export interface Product {
     };
 }
 
-// ✅ Order sinkron dengan migration + seeder
 export interface Order {
     id: number;
     transaction_number: string;
     user_id: number;
     tenant_id: string;
     invoice?: {
-    id: number;
-    invoice_number: string;
+        id: number;
+        invoice_number: string;
     };
-
-    // Status
-    status: string; // contoh: "On Delivery"
-
-    // Payment
-    source_of_fund: string; // pinjaman, pribadi
+    status: string;
+    source_of_fund: string;
     account_no: string;
     account_bank: string;
-    payment_type: string; // cad
-    payment_method: string; // bri, bni, mandiri, bsi, btn, bca
+    payment_type: string;
+    payment_method: string;
     va_number: string;
-
-    // Pricing
     subtotal: number;
     subtotal_delivered: number;
     tax_amount: number;
-    tax_delivered
+    tax_delivered: number;
     shipping_amount: number;
     discount_amount: number;
     total_price: number;
     total_delivered: number;
-
-    // Billing
     billing_name: string;
     billing_email: string;
     billing_phone: string | null;
@@ -205,37 +231,26 @@ export interface Order {
     billing_city: string;
     billing_state: string;
     billing_zip: string;
-
-    // Shipping
     shipping_name: string | null;
     shipping_address: string | null;
     shipping_city: string | null;
     shipping_state: string | null;
     shipping_zip: string | null;
-
-    // Shipping details
     shipping_method: string;
     tracking_number: string | null;
     estimated_delivery: string | null;
     shipped_at: string | null;
     delivered_at: string | null;
-
-    // Notes
     customer_notes?: string | null;
     admin_notes?: string | null;
-
-    // Relasi
     order_items?: OrderItem[];
-
     products?: (Product & { pivot?: { quantity: number; qty_delivered: number } })[];
     product_detail: {
         sku: string;
         quantity: number;
-    }[]; //Relasi ke Product
-
+    }[];
     created_at: string;
     updated_at: string;
-
     user: User;
 }
 
@@ -252,7 +267,6 @@ export interface OrderItem {
     image?: Record<string>;
 }
 
-// ✅ OrderPayload untuk request create order
 export interface OrderPayload {
     transaction_number: string;
     user_id: number;
@@ -313,6 +327,7 @@ export interface Paginated<T> {
         to: number;
     };
 }
+
 export class Category {
     id: number;
     main_category: string;

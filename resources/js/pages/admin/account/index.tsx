@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { Calendar, Mail, User } from 'lucide-react';
+import { Calendar, Mail, User, FileText, Phone, IdCard } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -175,47 +175,112 @@ export default function MappingUsers() {
                         <p className="col-span-full text-gray-500 dark:text-gray-400">No {filter} accounts found.</p>
                     )}
                 </div>
+          
+           {/* Detail Modal */}
+       <Dialog open={!!selectedAccount} onOpenChange={() => setSelectedAccount(null)}>
+  <DialogContent className="w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-200 bg-white p-0 shadow-xl dark:border-gray-700 dark:bg-gray-900">
+    {/* Header */}
+    <div className="flex items-center justify-between bg-gradient-to-r from-orange-600 to-orange-500 px-6 py-3 text-white">
+      <div className="flex items-center gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
+          <User className="h-4 w-4 text-white" />
+        </div>
+        <div>
+          <h2 className="text-sm font-semibold tracking-wide">Detail Akun</h2>
+          <p className="text-xs text-blue-100">Informasi lengkap akun koperasi</p>
+        </div>
+      </div>
+    </div>
 
-                {/* Detail Modal */}
-                <Dialog open={!!selectedAccount} onOpenChange={() => setSelectedAccount(null)}>
-                    <DialogContent className="w-full max-w-2xl rounded-2xl p-6 shadow-lg dark:border-gray-700 dark:bg-gray-900">
-                        <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2 text-lg font-bold text-blue-600 dark:text-blue-400">
-                                <User className="h-5 w-5" /> Account Details
-                            </DialogTitle>
-                        </DialogHeader>
 
-                        {selectedAccount && (
-                            <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <div className="space-y-4">
-                                    <p>
-                                        <b>Name:</b> {selectedAccount.name}
-                                    </p>
-                                    <p>
-                                        <b>Email:</b> {selectedAccount.email}
-                                    </p>
-                                    <p>
-                                        <b>Phone:</b> {selectedAccount.phone}
-                                    </p>
-                                </div>
-                                <div className="space-y-4">
-                                    <p>
-                                        <b>Apotek:</b> {selectedAccount.apotek?.name ?? '-'}
-                                    </p>
-                                    <p>
-                                        <b>Roles:</b> {selectedAccount.roles?.map((r: any) => r.name).join(', ')}
-                                    </p>
-                                    <p>
-                                        <b>No. SIA:</b> {selectedAccount.userProfile?.sia_number}
-                                    </p>
-                                    <p>
-                                        <b>NIK Koperasi:</b> {selectedAccount.tenant_id}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </DialogContent>
-                </Dialog>
+    {selectedAccount && (
+      <div className="p-6 space-y-6 text-xs text-gray-700 dark:text-gray-300">
+       
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+          <p><b>Nama:</b> {selectedAccount.name ?? '-'}</p>
+          <p><b>Email:</b> {selectedAccount.email ?? '-'}</p>
+          <p><b>No Telp:</b> {selectedAccount.phone ?? '-'}</p>
+          <p><b>Roles:</b> {selectedAccount.roles?.map((r: any) => r.name).join(', ') || '-'}</p>
+          <p><b>Apotek:</b> {selectedAccount.apotek?.name ?? '-'}</p>
+          <p><b>Status:</b>{' '}
+            <span
+              className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                selectedAccount.status === 'approved'
+                  ? 'bg-green-100 text-green-600'
+                  : selectedAccount.status === 'rejected'
+                  ? 'bg-red-100 text-red-600'
+                  : 'bg-yellow-100 text-yellow-600'
+              }`}
+            >
+              {selectedAccount.status?.toUpperCase() ?? 'PENDING'}
+            </span>
+          </p>
+        </div>
+
+        <hr className="border-gray-200 dark:border-gray-700" />
+
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+          <p><b>NIK:</b> {selectedAccount.user_profile_data?.nik ?? '-'}</p>
+          <p><b>No. NIB:</b> {selectedAccount.user_profile_data?.nib_number ?? '-'}</p>
+          <p><b>No. SIA:</b> {selectedAccount.user_profile_data?.sia_number ?? '-'}</p>
+          <p><b>NIK Koperasi:</b> {selectedAccount.tenant_id ?? '-'}</p>
+          <p className="sm:col-span-2 mt-4"><b>Alamat:</b> {selectedAccount.user_profile_data?.address ?? '-'}</p>
+        </div>
+
+        <hr className="border-gray-200 dark:border-gray-700" />
+
+     
+        <div>
+          <h3 className="mb-4 text-sm font-semibold text-orange-600 dark:text-orange-400">Dokumen</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: 'KTP', file: selectedAccount.user_profile_data?.ktp_file },
+              { label: 'NIB', file: selectedAccount.user_profile_data?.nib_file },
+              { label: 'NPWP', file: selectedAccount.user_profile_data?.npwp_file },
+              { label: 'SIA', file: selectedAccount.user_profile_data?.sia_file },
+            ].map((doc, i) => (
+              <div key={i} className="text-center">
+                <p className="mb-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">{doc.label}</p>
+                {doc.file ? (
+                  doc.file.endsWith('.pdf') ? (
+                    <a
+                      href={doc.file}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-col items-center justify-center h-24 rounded-lg border border-gray-200 bg-gray-50 hover:scale-105 hover:shadow-md transition-transform dark:border-gray-700 dark:bg-gray-800"
+                    >
+                      <FileText className="h-5 w-5 text-orange-500" />
+                      <span className="text-[10px] text-gray-700 mt-1">Lihat PDF</span>
+                    </a>
+                  ) : (
+                    <a
+                      href={doc.file}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block overflow-hidden rounded-lg border border-gray-200 hover:scale-105 hover:shadow-lg transition-transform dark:border-gray-700"
+                    >
+                      <img
+                        src={doc.file}
+                        alt={`${doc.label} Preview`}
+                        className="h-24 w-full object-cover"
+                      />
+                    </a>
+                  )
+                ) : (
+                  <div className="flex h-24 w-full items-center justify-center rounded-lg border border-dashed border-gray-300 text-gray-400 dark:border-gray-600">
+                    <span className="text-[10px]">Tidak ada file</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+  </DialogContent>
+</Dialog>
+
 
                 {/* Confirm Modal */}
                 <Dialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>

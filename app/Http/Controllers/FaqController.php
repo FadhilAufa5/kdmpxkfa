@@ -38,7 +38,7 @@ class FaqController extends Controller
     ],
     [
         'question' => 'Bagaimana cara memesan Paket Koperasi Merah Putih?',
-        'answer' => ''
+        'answer' => 'Pilih menu Paket Koperasi Merah Putih di situs kami, lengkapi formulir pemesanan, dan ikuti instruksi pembayaran yang diberikan.'
     ],
 ];
 

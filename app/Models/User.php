@@ -15,14 +15,8 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, HasUuid, InteractsWithMedia, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'username',
@@ -42,21 +36,11 @@ class User extends Authenticatable implements HasMedia
         'approved_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -65,10 +49,24 @@ class User extends Authenticatable implements HasMedia
         ];
     }
 
+  
+
     public function apotek(): BelongsTo
     {
         return $this->belongsTo(Apotek::class);
     }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function userProfile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+   
 
     public function scopeAdmin($query)
     {
@@ -82,12 +80,7 @@ class User extends Authenticatable implements HasMedia
         return $query->where('is_active', true);
     }
 
-    public function approvedBy()
-    {
-        return $this->belongsTo(User::class, 'approved_by');
-    }
-
-    // app/Models/User.php
+ 
 
     public function getMenusAttribute()
     {
@@ -118,14 +111,20 @@ class User extends Authenticatable implements HasMedia
         return [];
     }
 
+  
     protected $appends = ['user_profile_data'];
-    public function userProfile(): HasOne
-    {
-        return $this->hasOne(UserProfile::class);
-    }
 
     public function getUserProfileDataAttribute()
     {
-        return $this->userProfile;
+        $profile = $this->userProfile;
+        if (!$profile) {
+            return null;
+        }
+
+       
+        $sia = $this->getFirstMedia('sia_documents');
+        $profile->sia_file = $sia ? $sia->getUrl() : null;
+
+        return $profile;
     }
 }

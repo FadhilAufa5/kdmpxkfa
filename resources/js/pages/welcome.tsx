@@ -2,6 +2,7 @@ import { Head, Link } from "@inertiajs/react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { Button } from '@/components/ui/button';
 import { usePermission } from "@/hooks/user-permissions";
 import Hero from "@/components/Hero";
 import LogoLoop from "@/components/LogoLoop";
@@ -44,7 +45,7 @@ export default function Welcome() {
       <div className="min-h-screen bg-gray-50 text-gray-800">
         {/* === Navbar Responsive === */}
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/5 backdrop-blur-sm shadow-md">
-          <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="container mx-auto px-6 py-4 flex items-center justify-between">
             {/* === Logo Section === */}
             <div className="flex items-center gap-4">
               <Link href="/">
@@ -72,32 +73,20 @@ export default function Welcome() {
             </button>
 
             {/* === Menu kanan (Desktop) === */}
-            <div className="hidden md:flex items-center gap-6 text-sm">
+            <div className="hidden md:flex items-center gap-3 text-sm">
               {user ? (
                 <>
-                  <Link
-                    href={route(dashRoute)}
-                    className="rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-                  >
-                    {isUser ? "Dashboard" : "Admin Dashboard"}
-                  </Link>
-                  <Link
-                    method="post"
-                    href={route("logout")}
-                    className="rounded-md border border-orange-400 bg-orange-500 px-4 py-2 text-white transition hover:bg-orange-700"
-                  >
-                    Logout
-                  </Link>
+                  <Button asChild variant="default" className="px-4 py-2">
+                    <Link href={route(dashRoute)}>{isUser ? 'Dashboard' : 'Admin Dashboard'}</Link>
+                  </Button>
+                  <Button asChild variant="destructive" className="px-4 py-2">
+                    <Link method="post" href={route('logout')}>Logout</Link>
+                  </Button>
                 </>
               ) : (
-                <>
-                  <Link
-                    href={route("login")}
-                    className="rounded-md border border-orange-400 bg-orange-500 px-4 py-2 text-white transition hover:bg-orange-700"
-                  >
-                    Login
-                  </Link>
-                </>
+                <Button asChild variant="default" className="px-4 py-2">
+                  <Link href={route('login')}>Login</Link>
+                </Button>
               )}
             </div>
           </div>
@@ -116,32 +105,17 @@ export default function Welcome() {
                 <div className="flex flex-col items-center gap-4 py-4 text-sm">
                   {user ? (
                     <>
-                      <Link
-                        href={route(dashRoute)}
-                        className="w-4/5 rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-white text-center transition hover:bg-blue-700"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {isUser ? "Dashboard" : "Admin Dashboard"}
-                      </Link>
-                      <Link
-                        method="post"
-                        href={route("logout")}
-                        className="w-4/5 rounded-md border border-orange-400 bg-orange-500 px-4 py-2 text-white text-center transition hover:bg-orange-700"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        Logout
-                      </Link>
+                      <Button asChild className="w-4/5" onClick={() => setIsOpen(false)}>
+                        <Link href={route(dashRoute)} className="w-full text-center">{isUser ? 'Dashboard' : 'Admin Dashboard'}</Link>
+                      </Button>
+                      <Button asChild variant="destructive" className="w-4/5" onClick={() => setIsOpen(false)}>
+                        <Link method="post" href={route('logout')} className="w-full text-center">Logout</Link>
+                      </Button>
                     </>
                   ) : (
-                    <>
-                      <Link
-                        href={route("login")}
-                        className="w-4/5 rounded-md border border-orange-400 bg-orange-500 px-4 py-2 text-white text-center transition hover:bg-orange-700"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        Login
-                      </Link>
-                    </>
+                    <Button asChild className="w-4/5" onClick={() => setIsOpen(false)}>
+                      <Link href={route('login')} className="w-full text-center">Login</Link>
+                    </Button>
                   )}
                 </div>
               </motion.div>

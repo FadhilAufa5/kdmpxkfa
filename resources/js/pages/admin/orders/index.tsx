@@ -32,6 +32,8 @@ interface OrdersPageProps {
     orderStatuses: Record<string, string>;
 }
 
+type SortOption = 'newest' | 'price-low' | 'price-high' | 'a-z' | 'z-a';
+
 export default function OrdersIndex({
     orders,
     totalOrders = 0,
@@ -42,6 +44,7 @@ export default function OrdersIndex({
 }: OrdersPageProps) {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [sortBy, setSortBy] = useState<SortOption>('newest');
 
     const getStatusIcon = (orderStatus: string) => {
         switch (orderStatus) {
@@ -115,20 +118,36 @@ export default function OrdersIndex({
                                     className="w-full border-border bg-background text-foreground placeholder:text-muted-foreground"
                                 />
                             </div>
-                            <div className="w-full md:w-48">
-                                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                    <SelectTrigger className="w-full border-border bg-background text-foreground">
-                                        <SelectValue placeholder="Filter by status" />
-                                    </SelectTrigger>
-                                    <SelectContent className="border-border bg-background text-foreground">
-                                        <SelectItem value="all">All Orders</SelectItem>
-                                        {Object.entries(orderStatuses).map(([value, label]) => (
-                                            <SelectItem key={value} value={value}>
-                                                {label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                            <div className="flex gap-4">
+                                <div className="w-full md:w-48">
+                                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                        <SelectTrigger className="w-full border-border bg-background text-foreground">
+                                            <SelectValue placeholder="Filter by status" />
+                                        </SelectTrigger>
+                                        <SelectContent className="border-border bg-background text-foreground">
+                                            <SelectItem value="all">All Orders</SelectItem>
+                                            {Object.entries(orderStatuses).map(([value, label]) => (
+                                                <SelectItem key={value} value={value}>
+                                                    {label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="w-full md:w-48">
+                                    <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+                                        <SelectTrigger className="w-full border-border bg-background text-foreground">
+                                            <SelectValue placeholder="Sort by" />
+                                        </SelectTrigger>
+                                        <SelectContent className="border-border bg-background text-foreground">
+                                            <SelectItem value="newest">Newest First</SelectItem>
+                                            <SelectItem value="price-low">Price: Low to High</SelectItem>
+                                            <SelectItem value="price-high">Price: High to Low</SelectItem>
+                                            <SelectItem value="a-z">Name: A to Z</SelectItem>
+                                            <SelectItem value="z-a">Name: Z to A</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         </div>
                     </Card>

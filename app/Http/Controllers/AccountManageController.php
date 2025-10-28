@@ -11,15 +11,21 @@ class AccountManageController extends Controller
 {
     public function index()
     {
-        $users = User::with('apotek', 'roles', 'userProfile')
-            ->whereHas('roles', function ($q) {
-                $q->whereIn('name', [RoleEnum::USER->value]);
-            })
+      
+        $users = User::with(['apotek', 'roles', 'userProfile'])
+            ->whereHas('roles', fn($q) => $q->where('name', RoleEnum::USER->value))
             ->latest()
             ->get();
 
+       
+        $users->map(function ($user) {
+            $user->user_profile_data = $user->userProfile; 
+            return $user;
+        });
+
         return Inertia::render('admin/account/index', [
             'users' => $users,
+            
         ]);
     }
 

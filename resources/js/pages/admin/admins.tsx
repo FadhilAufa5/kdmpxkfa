@@ -127,7 +127,7 @@ export default function AdminAdmins({ admins, roles, apoteks, allAdmins, adminAd
                     </Card>
                 </div>
                 <Card>
-                    <CardHeader>
+                    <CardHeader> 
                         <CardTitle>Admins</CardTitle>
                         <CardDescription>View and manage all admins and their associated roles and permissions</CardDescription>
                     </CardHeader>

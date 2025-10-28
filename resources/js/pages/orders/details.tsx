@@ -97,9 +97,7 @@ export default function Detail() {
                                     <p className="text-sm text-muted-foreground">Placed: {formatTime(order.created_at)}</p>
                                 </div>
                                 <div className="mt-2 flex w-full flex-col gap-2 sm:mt-0 sm:w-auto sm:flex-row">
-                                    <Button size="sm" className="w-full sm:w-auto">
-                                        Send Invoice
-                                    </Button>
+                                
                                     <Link href={route('history.index')} className="w-full sm:w-auto">
                                         <Button size="sm" variant="outline" className="w-full sm:w-auto">
                                             <ArrowLeft className="mr-1 h-4 w-4" /> Back
@@ -244,7 +242,7 @@ export default function Detail() {
                                         >
                                             Paket Sudah Diterima
                                         </Button>
-                                        <Button variant="destructive" className="w-full text-white sm:flex-1">
+                                        <Button variant="destructive" className="w-full text-white sm:flex-1 hidden">
                                             Laporkan
                                         </Button>
                                     </div>

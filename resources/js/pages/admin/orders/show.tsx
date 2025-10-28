@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
@@ -11,6 +12,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { CheckCircle, Clock, MapPin, Package, Truck, User, XCircle, Download, Eye } from 'lucide-react';
 import { route } from 'ziggy-js';
+import { useState } from 'react';
 
 const breadcrumbs = (transactionNumber: string) => [
     { title: 'Dashboard', href: route('admin.dashboard') },
@@ -42,12 +44,16 @@ const getStatusIcon = (status: string) => {
 
 const formatStatus = (status: string) => status.charAt(0).toUpperCase() + status.slice(1);
 
+type SortOption = 'default' | 'price-low' | 'price-high' | 'a-z' | 'z-a';
+
 interface OrderShowProps {
     order: Order;
 }
 
 export default function OrderShow({ order }: OrderShowProps) {
     const breadcrumbsArray = breadcrumbs(order.transaction_number.toString());
+    const [searchProduct, setSearchProduct] = useState('');
+    const [sortBy, setSortBy] = useState<SortOption>('default');
 
     const { data, setData, patch, processing } = useForm({
         order_items: (order.order_items ?? []).map((item: OrderItem) => ({
@@ -63,27 +69,31 @@ export default function OrderShow({ order }: OrderShowProps) {
         patch(route('admin.orders.update', order.id));
     };
 
-    const updateQtyDelivered = (index: number, value: string) => {
+    const updateQtyDelivered = (itemId: number, value: string) => {
         const qtyValue = parseInt(value) || 0;
-        const maxQty = order.order_items?.[index]?.quantity || 0;
+        const maxQty = order.order_items?.find((it) => it.id === itemId)?.quantity || 0;
         const validatedQty = Math.min(qtyValue, maxQty);
 
-        const updatedItems = [...data.order_items];
-        updatedItems[index] = { ...updatedItems[index], qty_delivered: validatedQty };
-        setData('order_items', updatedItems);
+        const updatedItems = (data.order_items || []).map((it: any) => (it.id === itemId ? { ...it, qty_delivered: validatedQty } : it));
+        setData('order_items', updatedItems as any);
+    };
+
+    const setQtyDeliveredById = (itemId: number, qty: number) => {
+        const maxQty = order.order_items?.find((it) => it.id === itemId)?.quantity || 0;
+        const validatedQty = Math.min(qty, maxQty);
+        const updatedItems = (data.order_items || []).map((it: any) => (it.id === itemId ? { ...it, qty_delivered: validatedQty } : it));
+        setData('order_items', updatedItems as any);
     };
 
     const isDeliverable = order.status === 'new';
 
-    // Hitung subtotal
-    const subtotal = isDeliverable
-        ? data.order_items.reduce((sum, item, index) => {
-              const orderItem = order.order_items?.[index];
-              return sum + (orderItem ? orderItem.unit_price * orderItem.content * (item.qty_delivered || 0) : 0);
-          }, 0)
-        : (order.order_items ?? []).reduce((sum, item) => {
-              return sum + item.unit_price * item.content * (item.qty_delivered || 0);
-          }, 0);
+    // Hitung subtotal - map by id to avoid ordering issues when filtered/sorted
+    const subtotal = (order.order_items ?? []).reduce((sum, orderItem) => {
+        const delivered = isDeliverable
+            ? data.order_items.find((it: any) => it.id === orderItem.id)?.qty_delivered || 0
+            : orderItem.qty_delivered || 0;
+        return sum + orderItem.unit_price * orderItem.content * delivered;
+    }, 0);
 
     const tax = Math.round(subtotal * 0.11);
     const total = Math.round(subtotal * 1.11);
@@ -226,8 +236,33 @@ export default function OrderShow({ order }: OrderShowProps) {
                             <CardDescription>Products included in this order</CardDescription>
                         </CardHeader>
                         <CardContent>
+                            <div className="mb-4 flex flex-col gap-4 md:flex-row">
+                                <div className="flex-1">
+                                    <Input
+                                        placeholder="Search by product name..."
+                                        value={searchProduct}
+                                        onChange={(e) => setSearchProduct(e.target.value)}
+                                        className="w-full border-border bg-background text-foreground placeholder:text-muted-foreground"
+                                    />
+                                </div>
+                                <div className="w-full md:w-48">
+                                    <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+                                        <SelectTrigger className="w-full border-border bg-background text-foreground">
+                                            <SelectValue placeholder="Sort by" />
+                                        </SelectTrigger>
+                                        <SelectContent className="border-border bg-background text-foreground">
+                                            <SelectItem value="default">Default</SelectItem>
+                                            <SelectItem value="price-low">Price: Low to High</SelectItem>
+                                            <SelectItem value="price-high">Price: High to Low</SelectItem>
+                                            <SelectItem value="a-z">Name: A to Z</SelectItem>
+                                            <SelectItem value="z-a">Name: Z to A</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
                             <ScrollArea className="h-[400px] w-full">
-                                <Table>
+                                <div className="w-full overflow-x-auto">
+                                    <Table className="min-w-[900px]">
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead />
@@ -236,61 +271,80 @@ export default function OrderShow({ order }: OrderShowProps) {
                                             <TableHead className="text-center">Quantity</TableHead>
                                             <TableHead className="text-center">Satuan</TableHead>
                                             <TableHead className="text-center">Qty Delivered</TableHead>
+                                            <TableHead className="text-center">Action</TableHead>
                                             <TableHead className="text-right">Total</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {(order.order_items ?? []).map((item: OrderItem, index: number) => (
-                                            <TableRow key={item.id}>
-                                                <TableCell>
-                                                    {item.product?.image ? (
-                                                        <img
-                                                            src={item.product.image}
-                                                            alt={item.product.name}
-                                                            className="h-16 w-16 rounded-lg object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-200 text-xs text-gray-500">
-                                                            No Image
-                                                        </div>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="text-sm font-medium">{item.product_name || 'N/A'}</TableCell>
-                                                <TableCell className="text-right">{currency(item.unit_price * item.content)}</TableCell>
-                                                <TableCell className="text-center">
-                                                    {item.quantity} {item.product?.order_unit}
-                                                    <br />
-                                                    <span className="text-xs text-muted-foreground">
-                                                        ({item.quantity * (item.product?.content || 1)} {item.product?.base_uom})
-                                                    </span>
-                                                </TableCell>
-                                                <TableCell>{item.product?.order_unit}</TableCell>
-                                                <TableCell className="text-center">
-                                                    {isDeliverable ? (
-                                                        <Input
-                                                            type="number"
-                                                            min="0"
-                                                            max={item.quantity}
-                                                            step="1"
-                                                            value={data.order_items[index]?.qty_delivered || 0}
-                                                            onChange={(e) => updateQtyDelivered(index, e.target.value)}
-                                                            className="w-20 text-center"
-                                                        />
-                                                    ) : (
-                                                        <span>{item.qty_delivered || 0}</span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    {currency(
-                                                        item.unit_price *
-                                                            item.content *
-                                                            (isDeliverable ? data.order_items[index]?.qty_delivered || 0 : item.qty_delivered || 0)
-                                                    )}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
+                                        {(order.order_items ?? [])
+                                            .filter((item) => item.product_name?.toLowerCase().includes(searchProduct.toLowerCase()) || searchProduct === '')
+                                            .sort((a, b) => {
+                                                switch (sortBy) {
+                                                    case 'price-low':
+                                                        return a.unit_price * a.content - b.unit_price * b.content;
+                                                    case 'price-high':
+                                                        return b.unit_price * b.content - a.unit_price * a.content;
+                                                    case 'a-z':
+                                                        return (a.product_name || '').localeCompare(b.product_name || '');
+                                                    case 'z-a':
+                                                        return (b.product_name || '').localeCompare(a.product_name || '');
+                                                    default:
+                                                        return 0;
+                                                }
+                                            })
+                                            .map((item: OrderItem) => {
+                                                const deliveredObj = (data.order_items || []).find((d: any) => d.id === item.id);
+                                                const qtyDelivered = isDeliverable ? (deliveredObj?.qty_delivered ?? 0) : (item.qty_delivered || 0);
+
+                                                return (
+                                                    <TableRow key={item.id}>
+                                                        <TableCell>
+                                                            {item.product?.image ? (
+                                                                <img src={item.product.image} alt={item.product.name} className="h-16 w-16 rounded-lg object-cover" />
+                                                            ) : (
+                                                                <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-200 text-xs text-gray-500">No Image</div>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-sm font-medium">{item.product_name || 'N/A'}</TableCell>
+                                                        <TableCell className="text-right">{currency(item.unit_price * item.content)}</TableCell>
+                                                        <TableCell className="text-center">
+                                                            {item.quantity} {item.product?.order_unit}
+                                                            <br />
+                                                            <span className="text-xs text-muted-foreground">({item.quantity * (item.product?.content || 1)} {item.product?.base_uom})</span>
+                                                        </TableCell>
+                                                        <TableCell>{item.product?.order_unit}</TableCell>
+                                                        <TableCell className="text-center">
+                                                            {isDeliverable ? (
+                                                                <Input type="number" min={0} max={item.quantity} step={1} value={qtyDelivered}
+                                                                    onChange={(e) => updateQtyDelivered(item.id, e.target.value)} className="w-20 text-center" />
+                                                            ) : (
+                                                                <span>{qtyDelivered}</span>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-center">
+                                                                {isDeliverable ? (
+                                                                    <div className="flex items-center justify-center">
+                                                                        {qtyDelivered > 0 ? (
+                                                                            <Button type="button"  size="sm" variant="destructive" onClick={() => setQtyDeliveredById(item.id, 0)}>
+                                                                                Exclude
+                                                                            </Button>
+                                                                        ) : (
+                                                                            <Button type="button" size="sm" onClick={() => setQtyDeliveredById(item.id, item.quantity)}>
+                                                                                Include
+                                                                            </Button>
+                                                                        )}
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-sm text-muted-foreground">-</span>
+                                                                )}
+                                                        </TableCell>
+                                                        <TableCell className="text-right">{currency(item.unit_price * item.content * qtyDelivered)}</TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
                                     </TableBody>
-                                </Table>
+                                    </Table>
+                                </div>
                             </ScrollArea>
                         </CardContent>
                     </Card>
